@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MryouTools7864 - Thumbnail Resizer</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;font-family:Arial,sans-serif;background:#101827;color:white}
+main{max-width:600px;margin:25px auto;background:#1e293b;padding:24px;border-radius:18px}
+h1{color:#60a5fa;text-align:center}
+p{line-height:1.6;color:#d1d5db}
+input,button{width:100%;padding:14px;margin:10px 0;border-radius:9px;font-size:16px}
+input{background:#fff;color:#111}
+button{border:0;background:#2563eb;color:white;font-weight:bold}
+canvas,img{max-width:100%;height:auto}
+#preview{margin-top:15px;text-align:center}
+small{color:#cbd5e1}
+</style>
+</head>
+<body>
+<main>
+<h1>YouTube Thumbnail Resizer</h1>
+<p>Upload your image and resize it to YouTube thumbnail size: 1280 × 720 pixels.</p>
+<input type="file" id="file" accept="image/*">
+<div id="preview"></div>
+<button id="download" hidden>Download Thumbnail (1280×720)</button>
+<p><small>Free online tool by MryouTools7864</small></p>
+</main>
+<script>
+const file=document.getElementById('file');
+const preview=document.getElementById('preview');
+const download=document.getElementById('download');
+let canvas=document.createElement('canvas');
+canvas.width=1280;
+canvas.height=720;
+file.addEventListener('change',()=>{
+ const f=file.files[0];
+ if(!f)return;
+ const img=new Image();
+ img.onload=()=>{
+  const ctx=canvas.getContext('2d');
+  const scale=Math.max(1280/img.width,720/img.height);
+  const w=img.width*scale,h=img.height*scale;
+  ctx.clearRect(0,0,1280,720);
+  ctx.drawImage(img,(1280-w)/2,(720-h)/2,w,h);
+  preview.innerHTML='';
+  const p=document.createElement('img');
+  p.src=canvas.toDataURL('image/jpeg',0.92);
+  p.alt='Resized thumbnail preview';
+  preview.appendChild(p);
+  download.hidden=false;
+  URL.revokeObjectURL(img.src.startsWith('blob:')?img.src:'');
+ };
+ img.src=URL.createObjectURL(f);
+});
+download.addEventListener('click',()=>{
+ const a=document.createElement('a');
+ a.download='youtube-thumbnail-1280x720.jpg';
+ a.href=canvas.toDataURL('image/jpeg',0.92);
+ a.click();
+});
+</script>
+</body>
+</html>
