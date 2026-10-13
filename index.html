@@ -250,5 +250,155 @@ function compressImage() {
 
   img.src = url;
 }
-</script>
+</script> <!-- IMAGE TO PDF TOOL -->
+<div id="image-to-pdf-tool">
+  <h2>Image to PDF Converter</h2>
+  <p>Convert your images into a PDF file for free.</p>
+
+  <input
+    type="file"
+    id="imagePdfInput"
+    accept="image/jpeg,image/png"
+    multiple
+  >
+
+  <button id="imagePdfButton" type="button">
+    Convert Images to PDF
+  </button>
+
+  <p id="imagePdfStatus" role="status"></p>
+  <p class="image-pdf-note">
+    Select one or more JPG or PNG images.
+  </p>
+</div>
+
+<style>
+#image-to-pdf-tool {
+  max-width: 600px;
+  margin: 24px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
+#image-to-pdf-tool h2 {
+  color: #174ea6;
+}
+#image-to-pdf-tool input {
+  display: block;
+  width: 100%;
+  margin: 18px 0;
+}
+#image-to-pdf-tool button {
+  background: #174ea6;
+  color: white;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+}
+#image-to-pdf-tool button:disabled {
+  opacity: 0.6;
+}
+.image-pdf-note {
+  color: #666;
+  font-size: 13px;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+(function () {
+  const input = document.getElementById("imagePdfInput");
+  const button = document.getElementById("imagePdfButton");
+  const status = document.getElementById("imagePdfStatus");
+
+  button.addEventListener("click", async function () {
+    const files = Array.from(input.files);
+
+    if (!files.length) {
+      status.textContent = "Please select at least one image.";
+      return;
+    }
+
+    if (files.some(file =>
+      !["image/jpeg", "image/png"].includes(file.type)
+    )) {
+      status.textContent = "Please select JPG or PNG images only.";
+      return;
+    }
+
+    if (!window.jspdf) {
+      status.textContent =
+        "PDF library did not load. Check your internet connection.";
+      return;
+    }
+
+    button.disabled = true;
+    status.textContent = "Creating your PDF...";
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4"
+      });
+
+      for (let i = 0; i < files.length; i++) {
+        status.textContent =
+          "Processing image " + (i + 1) + " of " + files.length + "...";
+
+        const dataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error("Could not read image."));
+          reader.readAsDataURL(files[i]);
+        });
+
+        const img = await new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => resolve(image);
+          image.onerror = () => reject(new Error("Could not open image."));
+          image.src = dataUrl;
+        });
+
+        if (i > 0) pdf.addPage();
+
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 10;
+        const maxWidth = pageWidth - margin * 2;
+        const maxHeight = pageHeight - margin * 2;
+
+        const scale = Math.min(
+          maxWidth / img.width,
+          maxHeight / img.height
+        );
+
+        const width = img.width * scale;
+        const height = img.height * scale;
+        const x = (pageWidth - width) / 2;
+        const y = (pageHeight - height) / 2;
+
+        pdf.addImage(
+          dataUrl,
+          files[i].type === "image/png" ? "PNG" : "JPEG",
+          x, y, width, height
+        );
+      }
+
+      pdf.save("images-to-pdf.pdf");
+      status.textContent = "Success! Your PDF download should start now.";
+    } catch (error) {
+      status.textContent = "Could not create PDF: " + error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+})();
+    </script>
 </html>
