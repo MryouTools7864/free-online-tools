@@ -547,5 +547,364 @@ function compressImage() {
     link.remove();
   });
 })();
- </script>
+ </script> <!-- WORD COUNTER TOOL -->
+<div id="word-counter-tool">
+  <h2>Free Word Counter</h2>
+  <p>Count words, characters, sentences and paragraphs instantly.</p>
+
+  <textarea
+    id="wordCounterText"
+    placeholder="Type or paste your text here..."
+    rows="8"
+  ></textarea>
+
+  <div class="wc-stats">
+    <div class="wc-stat">
+      <strong id="wcWords">0</strong>
+      <span>Words</span>
+    </div>
+    <div class="wc-stat">
+      <strong id="wcChars">0</strong>
+      <span>Characters</span>
+    </div>
+    <div class="wc-stat">
+      <strong id="wcNoSpaces">0</strong>
+      <span>Without spaces</span>
+    </div>
+    <div class="wc-stat">
+      <strong id="wcSentences">0</strong>
+      <span>Sentences</span>
+    </div>
+    <div class="wc-stat">
+      <strong id="wcParagraphs">0</strong>
+      <span>Paragraphs</span>
+    </div>
+    <div class="wc-stat">
+      <strong id="wcReadTime">0 min</strong>
+      <span>Reading time</span>
+    </div>
+  </div>
+
+  <button id="wcClear" type="button">Clear Text</button>
+  <button id="wcCopy" type="button">Copy Text</button>
+  <p id="wcStatus" role="status"></p>
+</div>
+
+<style>
+#word-counter-tool {
+  max-width: 650px;
+  margin: 24px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
+#word-counter-tool h2 {
+  color: #174ea6;
+  text-align: center;
+}
+#word-counter-tool textarea {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+#word-counter-tool .wc-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+#word-counter-tool .wc-stat {
+  padding: 14px 6px;
+  border-radius: 8px;
+  background: #f0f5ff;
+  text-align: center;
+}
+#word-counter-tool .wc-stat strong,
+#word-counter-tool .wc-stat span {
+  display: block;
+}
+#word-counter-tool .wc-stat strong {
+  font-size: 23px;
+  color: #174ea6;
+  overflow-wrap: anywhere;
+}
+#word-counter-tool .wc-stat span {
+  font-size: 13px;
+  margin-top: 5px;
+}
+#word-counter-tool button {
+  padding: 11px 16px;
+  margin: 5px 5px 5px 0;
+  border: 0;
+  border-radius: 7px;
+  background: #174ea6;
+  color: white;
+  cursor: pointer;
+}
+@media (min-width: 500px) {
+  #word-counter-tool .wc-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+</style>
+
+<script>
+(function () {
+  const textBox = document.getElementById("wordCounterText");
+  const wordsOut = document.getElementById("wcWords");
+  const charsOut = document.getElementById("wcChars");
+  const noSpacesOut = document.getElementById("wcNoSpaces");
+  const sentencesOut = document.getElementById("wcSentences");
+  const paragraphsOut = document.getElementById("wcParagraphs");
+  const timeOut = document.getElementById("wcReadTime");
+  const status = document.getElementById("wcStatus");
+
+  function updateCount() {
+    const text = textBox.value;
+    const trimmed = text.trim();
+
+    const words = trimmed
+      ? trimmed.split(/\s+/u).filter(Boolean).length
+      : 0;
+
+    const sentences = trimmed
+      ? (trimmed.match(/[.!?۔؟]+(?=\s|$)|[^.!?۔؟]+$/gu) || [])
+          .filter(s => s.trim()).length
+      : 0;
+
+    const paragraphs = trimmed
+      ? trimmed.split(/\n\s*\n/u).filter(p => p.trim()).length
+      : 0;
+
+    wordsOut.textContent = words;
+    charsOut.textContent = text.length;
+    noSpacesOut.textContent = text.replace(/\s/g, "").length;
+    sentencesOut.textContent = sentences;
+    paragraphsOut.textContent = paragraphs;
+    timeOut.textContent = words === 0
+      ? "0 min"
+      : Math.max(1, Math.ceil(words / 200)) + " min";
+  }
+
+  textBox.addEventListener("input", updateCount);
+
+  document.getElementById("wcClear").addEventListener("click", function () {
+    textBox.value = "";
+    updateCount();
+    status.textContent = "Text cleared.";
+  });
+
+  document.getElementById("wcCopy").addEventListener("click", async function () {
+    if (!textBox.value) {
+      status.textContent = "Please enter some text first.";
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(textBox.value);
+      status.textContent = "Text copied successfully.";
+    } catch (error) {
+      textBox.focus();
+      textBox.select();
+      status.textContent = "Text selected. Use Copy from your browser menu.";
+    }
+  });
+
+  updateCount();
+})();
+</script> <!-- Background Remover Tool -->
+<div id="background-remover-tool">
+  <h2>AI Background Remover</h2>
+  <p>Upload a photo and remove its background.</p>
+
+  <input
+    type="file"
+    id="bgRemoveInput"
+    accept="image/png,image/jpeg,image/webp"
+  >
+
+  <div id="bgRemoveStatus" role="status">
+    Choose an image to begin.
+  </div>
+
+  <button id="bgRemoveButton" type="button">
+    Remove Background
+  </button>
+
+  <div id="bgRemovePreview"></div>
+
+  <a id="bgRemoveDownload"
+     style="display:none"
+     download="background-removed.png">
+    Download Transparent PNG
+  </a>
+</div>
+
+<style>
+#background-remover-tool {
+  max-width: 650px;
+  margin: 25px auto;
+  padding: 22px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px #00000012;
+}
+#background-remover-tool h2 {
+  color: #174ea6;
+}
+#background-remover-tool input {
+  display: block;
+  width: 100%;
+  margin: 20px 0;
+}
+#background-remover-tool button {
+  padding: 12px 20px;
+  background: #1769ff;
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  margin: 10px;
+}
+#background-remover-tool button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+#bgRemoveStatus {
+  margin: 15px 0;
+  overflow-wrap: anywhere;
+}
+#bgRemovePreview img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 18px;
+  background-color: #eeeeee;
+  background-image:
+    linear-gradient(45deg,#ddd 25%,transparent 25%),
+    linear-gradient(-45deg,#ddd 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#ddd 75%),
+    linear-gradient(-45deg,transparent 75%,#ddd 75%);
+  background-size: 20px 20px;
+  background-position: 0 0,0 10px,10px -10px,-10px 0;
+}
+#bgRemoveDownload {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 12px 18px;
+  background: #14804a;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+}
+</style>
+
+<script type="module">
+import { pipeline } from
+  "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+
+const input = document.getElementById("bgRemoveInput");
+const button = document.getElementById("bgRemoveButton");
+const status = document.getElementById("bgRemoveStatus");
+const preview = document.getElementById("bgRemovePreview");
+const download = document.getElementById("bgRemoveDownload");
+
+let remover = null;
+let inputUrl = null;
+let resultUrl = null;
+
+input.addEventListener("change", () => {
+  if (inputUrl) URL.revokeObjectURL(inputUrl);
+  if (resultUrl) URL.revokeObjectURL(resultUrl);
+
+  inputUrl = null;
+  resultUrl = null;
+  preview.replaceChildren();
+  download.style.display = "none";
+
+  const file = input.files[0];
+  if (!file) {
+    status.textContent = "Please choose an image.";
+    return;
+  }
+
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    input.value = "";
+    status.textContent = "Please choose a JPG, PNG, or WebP image.";
+    return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    input.value = "";
+    status.textContent = "Please choose an image under 10 MB.";
+    return;
+  }
+
+  inputUrl = URL.createObjectURL(file);
+  status.textContent = "Image selected. Tap Remove Background.";
+});
+
+button.addEventListener("click", async () => {
+  if (!input.files[0] || !inputUrl) {
+    status.textContent = "First choose an image.";
+    return;
+  }
+
+  button.disabled = true;
+  download.style.display = "none";
+  preview.replaceChildren();
+
+  try {
+    status.textContent = "Loading AI model. First use may take time...";
+
+    if (!remover) {
+      remover = await pipeline(
+        "background-removal",
+        "Xenova/modnet"
+      );
+    }
+
+    status.textContent = "Removing background. Please wait...";
+
+    const output = await remover(inputUrl);
+    const canvas = output[0].toCanvas();
+
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(
+        value => value ? resolve(value) :
+          reject(new Error("Could not create PNG image.")),
+        "image/png"
+      );
+    });
+
+    if (resultUrl) URL.revokeObjectURL(resultUrl);
+    resultUrl = URL.createObjectURL(blob);
+
+    const image = document.createElement("img");
+    image.src = resultUrl;
+    image.alt = "Image with background removed";
+    preview.appendChild(image);
+
+    download.href = resultUrl;
+    download.style.display = "inline-block";
+    status.textContent = "Done! Your image is ready to download.";
+
+  } catch (error) {
+    console.error(error);
+    status.textContent =
+      "Could not process image. Check your internet connection and try again.";
+  } finally {
+    button.disabled = false;
+  }
+});
+</script>
 </html>
