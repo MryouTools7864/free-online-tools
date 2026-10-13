@@ -199,5 +199,56 @@ $('makePassword').addEventListener('click',()=>{
 });
 $('copyPassword').addEventListener('click',async()=>{if(!$('passOutput').value){$('passMessage').textContent='Generate a password first.';return;}try{await navigator.clipboard.writeText($('passOutput').value);$('passMessage').textContent='Password copied.';}catch(e){$('passOutput').select();$('passMessage').textContent='Select the password and use Copy from your phone menu.';}});
 </script>
-</body>
+</body> <div class="tool-card">
+  <h2>Image Compressor</h2>
+  <p>Compress your images online for free.</p>
+  <input type="file" id="imageFile" accept="image/*">
+  <button onclick="compressImage()">Compress Image</button>
+  <p id="result"></p>
+  <canvas id="canvas" style="max-width:100%;display:none;"></canvas>
+  <a id="download" style="display:none;">Download Compressed Image</a>
+</div>
+
+<script>
+function compressImage() {
+  const file = document.getElementById('imageFile').files[0];
+  if (!file) {
+    alert('Please select an image first.');
+    return;
+  }
+
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+
+  img.onload = function() {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+
+    canvas.toBlob(function(blob) {
+      const download = document.getElementById('download');
+      download.href = URL.createObjectURL(blob);
+      download.download = 'compressed-image.jpg';
+      download.style.display = 'inline-block';
+      download.textContent = 'Download Compressed Image';
+
+      document.getElementById('result').textContent =
+        'Original: ' + Math.round(file.size / 1024) +
+        ' KB | Compressed: ' + Math.round(blob.size / 1024) + ' KB';
+
+      canvas.style.display = 'block';
+      URL.revokeObjectURL(url);
+    }, 'image/jpeg', 0.7);
+  };
+
+  img.onerror = function() {
+    URL.revokeObjectURL(url);
+    alert('Image could not be opened.');
+  };
+
+  img.src = url;
+}
+</script>
 </html>
